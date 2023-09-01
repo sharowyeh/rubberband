@@ -11,6 +11,7 @@ project(
     'default_library=both',
     'b_ndebug=if-release',
     'b_lundef=true',
+    'pkg_config_path=C:/Users/sharow/projects/nordic/vcpkg/installed/x64-windows/lib/pkgconfig'
   ],
   meson_version: '>= 0.53.0'
 )

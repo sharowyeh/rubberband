@@ -22,7 +22,7 @@
     <ProjectGuid>{020CEB11-EF4E-400E-971D-A35DB69D7CF9}</ProjectGuid>
     <RootNamespace>rubberband-library</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -30,7 +30,7 @@
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -75,6 +75,10 @@
     <OutDir>Release\</OutDir>
     <IntDir>Release\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VCPKG_ROOT)\installed\x64-windows\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(VCPKG_ROOT)\installed\x64-windows\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -93,7 +97,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__MSVC__;WIN32;_DEBUG;_LIB;NOMINMAX;_USE_MATH_DEFINES;HAVE_FFTW3;HAVE_LIBSAMPLERATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__MSVC__;WIN32;_DEBUG;_LIB;NOMINMAX;_USE_MATH_DEFINES;HAVE_FFTW3;FFTW_DOUBLE_ONLY;HAVE_LIBSAMPLERATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -129,7 +133,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>..;..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>__MSVC__;WIN32;NDEBUG;_LIB;NOMINMAX;_USE_MATH_DEFINES;USE_BUILTIN_FFT;NO_TIMING;USE_BQRESAMPLER;NO_THREAD_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>__MSVC__;WIN32;NDEBUG;_LIB;NOMINMAX;_USE_MATH_DEFINES;HAVE_FFTW3;FFTW_DOUBLE_ONLY;NO_TIMING;HAVE_LIBSAMPLERATE;NO_THREAD_CHECKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>

@@ -348,6 +348,12 @@ public:
     {
         Log::setDefaultDebugLevel(level);
     }
+
+    void* getChannelData()
+    {
+        if (m_r2) return nullptr;
+        else return (void*)m_r3->getChannelData();
+    }
 };
 
 RubberBandStretcher::RubberBandStretcher(size_t sampleRate,
@@ -606,6 +612,12 @@ void
 RubberBandStretcher::setDefaultDebugLevel(int level)
 {
     Impl::setDefaultDebugLevel(level);
+}
+
+void*
+RubberBandStretcher::getChannelData()
+{
+    return m_d->getChannelData();
 }
 
 }

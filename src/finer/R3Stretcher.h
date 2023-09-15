@@ -103,8 +103,9 @@ public:
         m_guide.setDebugLevel(level);
         m_calculator->setDebugLevel(level);
     }
-
-protected:
+    
+//protected:
+public:
     struct Limits {
         int minPreferredOuthop;
         int maxPreferredOuthop;
@@ -330,6 +331,11 @@ protected:
     std::atomic<double> m_pitchScale;
     std::atomic<double> m_formantScale;
     
+public:
+    //DEBUG: want to render out graph of FFT data
+    std::vector<std::shared_ptr<ChannelData>>* getChannelData() { return &m_channelData; };
+
+protected:
     std::vector<std::shared_ptr<ChannelData>> m_channelData;
     std::map<int, std::shared_ptr<ScaleData>> m_scaleData;
     Guide m_guide;

@@ -104,8 +104,8 @@ public:
         m_calculator->setDebugLevel(level);
     }
     
-protected:
-//public:
+//protected:
+public: // let internal struct to public for caller getting channel data
     struct Limits {
         int minPreferredOuthop;
         int maxPreferredOuthop;
@@ -334,7 +334,7 @@ protected:
 public:
     //DEBUG: want to render out graph of FFT data, ERR: seems we can't just send out shared_ptr to caller
     // TODO: design another ring buffer to buffering spectrum or channel data may be good way streamming data to ui?
-    void* getChannelData(int c = 0) { return &m_channelData.at(c); };
+    std::shared_ptr<ChannelData>* getChannelData(int c = 0) { return &m_channelData.at(c); };
 
 protected:
     std::vector<std::shared_ptr<ChannelData>> m_channelData;

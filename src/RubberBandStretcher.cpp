@@ -349,7 +349,7 @@ public:
         Log::setDefaultDebugLevel(level);
     }
 
-    void* getChannelData(int c)
+    std::shared_ptr<R3Stretcher::ChannelData>* getChannelData(int c)
     {
         if (m_r2) return nullptr;
         else return m_r3->getChannelData(c);
@@ -617,7 +617,7 @@ RubberBandStretcher::setDefaultDebugLevel(int level)
 void*
 RubberBandStretcher::getChannelData(int c)
 {
-    return m_d->getChannelData(c);
+    return static_cast<void*>(m_d->getChannelData(c));
 }
 
 }

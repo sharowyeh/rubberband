@@ -349,10 +349,10 @@ public:
         Log::setDefaultDebugLevel(level);
     }
 
-    void* getChannelData()
+    void* getChannelData(int c)
     {
         if (m_r2) return nullptr;
-        else return (void*)m_r3->getChannelData();
+        else return nullptr;//m_r3->getChannelData(c);
     }
 };
 
@@ -615,9 +615,9 @@ RubberBandStretcher::setDefaultDebugLevel(int level)
 }
 
 void*
-RubberBandStretcher::getChannelData()
+RubberBandStretcher::getChannelData(int c)
 {
-    return m_d->getChannelData();
+    return m_d->getChannelData(c);
 }
 
 }

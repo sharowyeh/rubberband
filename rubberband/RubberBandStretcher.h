@@ -1080,7 +1080,7 @@ public:
     static void setDefaultDebugLevel(int level);
 
     //DEBUG: want to render out graph of FFT data, pointer of std::vector<std::shared_ptr<R3Stretcher::ChannelData>>
-    void* getChannelData();
+    void* getChannelData(int c);
 
 protected:
     class Impl;

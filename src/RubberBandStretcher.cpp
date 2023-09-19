@@ -352,7 +352,7 @@ public:
     void* getChannelData(int c)
     {
         if (m_r2) return nullptr;
-        else return nullptr;//m_r3->getChannelData(c);
+        else return m_r3->getChannelData(c);
     }
 };
 

@@ -7,7 +7,7 @@ mkdir build
 #  - all dependencies or packages were installed via homebrew
 #  - >pkg-config --list-all makes sure meson checking from
 #  - add homebrew include or lib path for meson default using usr paths
-meson setup build --wipe --cross-file cross/macos-arm64.txt -Dextra_include_dirs=/opt/homebrew/include
+meson setup build --wipe --cross-file cross/macos-arm64.txt -Dextra_include_dirs=/opt/homebrew/include -Dbuildtype=debug
 
 # build
 ninja -C build

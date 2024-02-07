@@ -349,10 +349,33 @@ public:
         Log::setDefaultDebugLevel(level);
     }
 
-    std::shared_ptr<R3Stretcher::ChannelData>* getChannelData(int c)
+    std::shared_ptr<R3Stretcher::ChannelData>* getChannelData(unsigned int c)
     {
         if (m_r2) return nullptr;
         else return m_r3->getChannelData(c);
+    }
+
+    int getFftScaleSizes(unsigned int* s)
+    {
+        if (m_r2) return -1;
+        else return m_r3->getFftScaleSizes(s);
+    }
+
+    std::shared_ptr<R3Stretcher::ChannelScaleData>* getScaleData(unsigned int c, unsigned int f)
+    {
+        if (m_r2) return nullptr;
+        else return m_r3->getScaleData(c, f);
+    }
+
+    std::unique_ptr<R3Stretcher::FormantData>* getFormantData(unsigned int c)
+    {
+        if (m_r2) return nullptr;
+        else return m_r3->getFormantData(c);
+    }
+
+    const char* getLibraryVersion()
+    {
+        return "v3.3.0-expr";
     }
 };
 
@@ -615,9 +638,49 @@ RubberBandStretcher::setDefaultDebugLevel(int level)
 }
 
 void*
-RubberBandStretcher::getChannelData(int c)
+RubberBandStretcher::getChannelData(unsigned int c)
 {
-    return static_cast<void*>(m_d->getChannelData(c));
+    auto data = m_d->getChannelData(c);
+    auto ptr = data->get();
+    auto dbg = ptr->scales.size();
+    std::cout << __func__ << ": channel scale size " << dbg << std::endl;
+    //printf("%s: channel scale size %d\n", __func__, dbg);
+    return static_cast<void*>(data); // NOTE: bypass the ptr of smart ptr
+}
+
+int
+RubberBandStretcher::getFftScaleSizes(unsigned int* sizes)
+{
+    auto cnt = m_d->getFftScaleSizes(sizes);
+    return cnt;
+}
+
+void*
+RubberBandStretcher::getScaleData(unsigned int c, unsigned int fftSize)
+{
+    auto data = m_d->getScaleData(c, fftSize);
+    auto ptr = data->get();
+    auto dbg = ptr->bufSize;
+    std::cout << __func__ << ": scale buf size " << dbg << std::endl;
+    //printf("%s: scale buf size %d\n", __func__, dbg);
+    return static_cast<void*>(data);
+}
+
+void*
+RubberBandStretcher::getFormantData(unsigned int c)
+{
+    auto data = m_d->getFormantData(c);
+    auto ptr = data->get();
+    auto dbg = ptr->fftSize;
+    std::cout << __func__ << ": formant fft size " << dbg << std::endl;
+    return static_cast<void*>(data);
+}
+
+const char*
+RubberBandStretcher::getLibraryVersion()
+{
+    if (!m_d) return "v3.3.0-expr";
+    return m_d->getLibraryVersion();
 }
 
 }

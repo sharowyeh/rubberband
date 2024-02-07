@@ -332,9 +332,45 @@ public: // let internal struct to public for caller getting channel data
     std::atomic<double> m_formantScale;
     
 public:
-    //DEBUG: want to render out graph of FFT data, ERR: seems we can't just send out shared_ptr to caller
-    // TODO: design another ring buffer to buffering spectrum or channel data may be good way streamming data to ui?
-    std::shared_ptr<ChannelData>* getChannelData(int c = 0) { return &m_channelData.at(c); };
+    //DEBUG: want to render out graph of FFT data,
+    //TODO: so far just return the (ptr of smart ptr) as dirty way to pass the data to caller
+    //  it's thread-unsafe even the smart ptr is designed to thread-safe...
+    std::shared_ptr<ChannelData>* getChannelData(unsigned int c = 0) {
+        return m_channelData.size() > c ? &(m_channelData.at(c)) : nullptr;
+    };
+
+    int getFftScaleSizes(unsigned int* sizes) {
+        if (!sizes) return -1;
+        // the fft sizes(key of map) of scale data is depends on guide band limits
+        // either check m_scaleData or m_guideConfiguration.fftBandLimits is fine
+        for (auto &it : m_scaleData) {
+            *sizes = it.first;
+            sizes++;
+        }
+        for (auto &it : m_guideConfiguration.fftBandLimits) {
+            auto dbg = it.fftSize;
+            m_log.log(1, "getFftScaleSizes: guide band size", dbg);
+        }
+        // should be 3
+        return m_guideConfiguration.fftBandLimitCount;
+    }
+
+    std::shared_ptr<ChannelScaleData>* getScaleData(unsigned int c = 0, unsigned int f = 1024) {
+        if (m_channelData.size() > c) {
+            auto s = m_channelData[c]->scales;
+            if (s.find(f) != s.end()) {
+                return &s.find(f)->second;
+            }
+        }
+        return nullptr;
+    }
+
+    std::unique_ptr<FormantData>* getFormantData(unsigned int c = 0) {
+        if (m_channelData.size() > c) {
+            return &m_channelData[c]->formant;
+        }
+        return nullptr;
+    }
 
 protected:
     std::vector<std::shared_ptr<ChannelData>> m_channelData;

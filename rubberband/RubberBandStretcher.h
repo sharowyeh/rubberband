@@ -1079,8 +1079,16 @@ public:
      */
     static void setDefaultDebugLevel(int level);
 
-    //DEBUG: want to render out graph of FFT data, pointer of std::vector<std::shared_ptr<R3Stretcher::ChannelData>>
-    void* getChannelData(int c);
+    //DEBUG: want to render out graphs from FFT datasets,
+    //   originally just return whole channel datasets in win32 but invalid work in mac,
+    //   so far separated each smart points and pass their pointers to caller in dirty ways
+    void* getChannelData(unsigned int c);
+    int getFftScaleSizes(unsigned int * sizes);
+    void* getScaleData(unsigned int c, unsigned int fftSize);
+    void* getFormantData(unsigned int c);
+
+    //DEBUG: ensure library is compiled correctly
+    const char* getLibraryVersion();
 
 protected:
     class Impl;

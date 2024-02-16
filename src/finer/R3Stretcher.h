@@ -374,14 +374,24 @@ public:
         if (fftSize) {
             *fftSize = formant->fftSize;
         }
+// compatible string compare function in different OS
+#ifdef stricmp
+#undef stricmp
+#endif
+#ifdef __APPLE__
+#define stricmp strcasecmp
+#endif
+#ifdef _WIN32
+#define stricmp _stricmp
+#endif
         if (vecPtr) {
-            if (strcasecmp(name, "cepstra") == 0) {
+            if (stricmp(name, "cepstra") == 0) {
                 *vecPtr = formant->cepstra.data();
             }
-            if (strcasecmp(name, "envelope") == 0) {
+            if (stricmp(name, "envelope") == 0) {
                 *vecPtr = formant->envelope.data();
             }
-            if (strcasecmp(name, "spare") == 0) {
+            if (stricmp(name, "spare") == 0) {
                 *vecPtr = formant->spare.data();
             }
         }

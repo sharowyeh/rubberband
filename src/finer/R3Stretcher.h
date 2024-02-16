@@ -355,21 +355,36 @@ public:
         return m_guideConfiguration.fftBandLimitCount;
     }
 
-    std::shared_ptr<ChannelScaleData>* getScaleData(unsigned int c = 0, unsigned int f = 1024) {
+    std::shared_ptr<ChannelScaleData> getScaleData(unsigned int c = 0, unsigned int f = 1024) {
         if (m_channelData.size() > c) {
             auto s = m_channelData[c]->scales;
             if (s.find(f) != s.end()) {
-                return &s.find(f)->second;
+                // NOTE: msvc will get invalid address if use the pointer from object of map::second
+                return s.find(f)->second;
             }
         }
         return nullptr;
     }
 
-    std::unique_ptr<FormantData>* getFormantData(unsigned int c = 0) {
-        if (m_channelData.size() > c) {
-            return &m_channelData[c]->formant;
+    void getFormantData(unsigned int c = 0, const char* name = "cepstra", int* fftSize = nullptr, double** vecPtr = nullptr) {
+        if (m_channelData.size() <= c)
+            return;
+
+        auto formant = m_channelData[c]->formant.get();
+        if (fftSize) {
+            *fftSize = formant->fftSize;
         }
-        return nullptr;
+        if (vecPtr) {
+            if (strcasecmp(name, "cepstra") == 0) {
+                *vecPtr = formant->cepstra.data();
+            }
+            if (strcasecmp(name, "envelope") == 0) {
+                *vecPtr = formant->envelope.data();
+            }
+            if (strcasecmp(name, "spare") == 0) {
+                *vecPtr = formant->spare.data();
+            }
+        }
     }
 
 protected:

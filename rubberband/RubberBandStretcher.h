@@ -1085,7 +1085,7 @@ public:
     void* getChannelData(unsigned int c);
     int getFftScaleSizes(unsigned int * sizes);
     void* getScaleData(unsigned int c, unsigned int fftSize);
-    void* getFormantData(unsigned int c);
+    void getFormantData(unsigned int c, const char* name, int* fftSize, double** vecPtr);
 
     //DEBUG: ensure library is compiled correctly
     const char* getLibraryVersion();

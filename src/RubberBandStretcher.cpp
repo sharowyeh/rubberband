@@ -361,16 +361,16 @@ public:
         else return m_r3->getFftScaleSizes(s);
     }
 
-    std::shared_ptr<R3Stretcher::ChannelScaleData>* getScaleData(unsigned int c, unsigned int f)
+    std::shared_ptr<R3Stretcher::ChannelScaleData> getScaleData(unsigned int c, unsigned int f)
     {
         if (m_r2) return nullptr;
         else return m_r3->getScaleData(c, f);
     }
 
-    std::unique_ptr<R3Stretcher::FormantData>* getFormantData(unsigned int c)
+    void getFormantData(unsigned int c, const char* name, int* fftSize, double** vecPtr)
     {
-        if (m_r2) return nullptr;
-        else return m_r3->getFormantData(c);
+        if (m_r2) return;
+        else return m_r3->getFormantData(c, name, fftSize, vecPtr);
     }
 
     const char* getLibraryVersion()
@@ -659,21 +659,20 @@ void*
 RubberBandStretcher::getScaleData(unsigned int c, unsigned int fftSize)
 {
     auto data = m_d->getScaleData(c, fftSize);
-    auto ptr = data->get();
+    // NOTE: need to ensure ownership transter
+    auto ptr = data.get();
     auto dbg = ptr->bufSize;
     std::cout << __func__ << ": scale buf size " << dbg << std::endl;
     //printf("%s: scale buf size %d\n", __func__, dbg);
-    return static_cast<void*>(data);
+    return static_cast<void*>(ptr);
 }
 
-void*
-RubberBandStretcher::getFormantData(unsigned int c)
+void
+RubberBandStretcher::getFormantData(unsigned int c, const char* name, int* fftSize, double** vecPtr)
 {
-    auto data = m_d->getFormantData(c);
-    auto ptr = data->get();
-    auto dbg = ptr->fftSize;
+    m_d->getFormantData(c, name, fftSize, vecPtr);
+    auto dbg = (fftSize) ? *fftSize : 0;
     std::cout << __func__ << ": formant fft size " << dbg << std::endl;
-    return static_cast<void*>(data);
 }
 
 const char*

@@ -112,6 +112,9 @@ foreach d: get_option('extra_include_dirs')
   extra_include_args += [ '-I' + d ]
 endforeach
 
+# for python wrapper build
+pybind11_dep = dependency('pybind11', version: '>= 2.7.0', required: false)
+
 fftw3_dep = dependency('fftw3', version: '>= 3.0.0', required: false)
 sleef_dep = dependency('sleef', version: '>= 3.3.0', required: false)
 sleefdft_dep = dependency('sleefdft', version: '>= 3.3.0', required: false)
@@ -178,8 +181,6 @@ if have_java
 endif
 
 
-# Check FFT and resampler options and set up dependencies and paths
-
 feature_dependencies = []
 feature_defines = []
 feature_libraries = []
@@ -190,6 +191,26 @@ arch_flags = []
 
 config_summary = {}
 target_summary = {}
+
+
+# TODO: try to use pybind for python wrapper, add build options like other dependencies (or just hard coded?)
+
+if pybind11_dep.found()
+  message('pybind11 found, we can compile python wrapper for rubberband APIs')
+  # can add to dependencies and requirements for pkg generate
+  feature_dependencies += pybind11_dep
+  pkgconfig_requirements += pybind11_dep
+
+  feature_sources += ['src/rubberband-py.cpp']
+  #feature_defines += ['',]
+  # TODO: following the other libraries to see what to do
+  #
+else
+  message('pybind11 not found, considering get it via vcpkg or remove python wrapper source code')
+endif
+
+
+# Check FFT and resampler options and set up dependencies and paths
 
 resampler = get_option('resampler')
 fft = get_option('fft')

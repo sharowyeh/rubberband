@@ -112,9 +112,6 @@ foreach d: get_option('extra_include_dirs')
   extra_include_args += [ '-I' + d ]
 endforeach
 
-# for python wrapper build
-pybind11_dep = dependency('pybind11', version: '>= 2.7.0', required: false)
-
 fftw3_dep = dependency('fftw3', version: '>= 3.0.0', required: false)
 sleef_dep = dependency('sleef', version: '>= 3.3.0', required: false)
 sleefdft_dep = dependency('sleefdft', version: '>= 3.3.0', required: false)
@@ -194,7 +191,7 @@ target_summary = {}
 
 
 # TODO: try to use pybind for python wrapper, add build options like other dependencies (or just hard coded?)
-
+# NOTE: based on pybind is light-weight headers-only pacakge from vcpkg, we may only can check the includes and python dep
 if pybind11_dep.found()
   message('pybind11 found, we can compile python wrapper for rubberband APIs')
   # can add to dependencies and requirements for pkg generate

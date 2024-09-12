@@ -190,18 +190,27 @@ config_summary = {}
 target_summary = {}
 
 
-# TODO: try to use pybind for python wrapper, add build options like other dependencies (or just hard coded?)
 # NOTE: based on pybind is light-weight headers-only pacakge from vcpkg, we may only can check the includes and python dep
-if pybind11_dep.found()
-  message('pybind11 found, we can compile python wrapper for rubberband APIs')
-  # can add to dependencies and requirements for pkg generate
-  feature_dependencies += pybind11_dep
-  pkgconfig_requirements += pybind11_dep
+have_pybind = cpp.has_header('pybind11/pybind11.h', args: extra_include_args, required: false)
+# NOTE: in my windows env, pkgconf is installed in cygwin, 
+#       checkout the /c/cygwin64/bin/pkgconf --list-all to include via dependency()
+# TODO: dep can not found in vs2022 command prompt
+python3_dep = dependency('python3', version: '>= 3.10.0', required: false)
 
-  feature_sources += ['src/rubberband-py.cpp']
-  #feature_defines += ['',]
-  # TODO: following the other libraries to see what to do
-  #
+if have_pybind
+  message('pybind11 found, we can compile python wrapper for rubberband APIs')
+  if python3_dep.found()
+    # can add to dependencies and requirements for pkg generate
+    feature_dependencies += python3_dep
+    pkgconfig_requirements += python3_dep
+
+    feature_sources += ['src/rubberband-py.cpp']
+    #feature_defines += ['',]
+    # TODO: following the other libraries to see what to do
+    #
+  else
+    message('python3 library not found, >= 3.10 is required for pybind11')
+  endif
 else
   message('pybind11 not found, considering get it via vcpkg or remove python wrapper source code')
 endif

@@ -1,10 +1,10 @@
 /*
  * python wrapper, NOTE: auto-generate from GPT4
- *
  */
 
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#include <pybind11/numpy.h>  // For handling numpy arrays in Python
 #include "RubberBandStretcher.h"
 
 namespace py = pybind11;
@@ -39,10 +39,54 @@ PYBIND11_MODULE(rubberband_wrapper, m) {
         .def("get_process_size_limit", &RubberBandStretcher::getProcessSizeLimit)
         .def("get_samples_required", &RubberBandStretcher::getSamplesRequired)
         .def("set_key_frame_map", &RubberBandStretcher::setKeyFrameMap)
-        .def("study", &RubberBandStretcher::study)
-        .def("process", &RubberBandStretcher::process)
+        // TODO: fix meson cannot convert argument 2 from 'float *' to 'const float *const *
+        // NOTE: the input ptr is also read as 2d array in cpp r3stretcher.cpp, gpt seems give this sample given ptr of data ptr to the native code?
+        //.def("study", &RubberBandStretcher::study)
+        .def("study", [](RubberBand::RubberBandStretcher &self, py::array_t<float> input, size_t samples, bool final) {
+            py::buffer_info info = input.request();
+
+            // Cast numpy data into the right format (const float *const *)
+            auto data_ptr = static_cast<const float *>(info.ptr);
+            const float *const data_arr[] = { data_ptr };  // Create an array of pointers
+
+            // Call the original C++ method
+            self.study(data_arr, samples, final);
+        })
+        //.def("process", &RubberBandStretcher::process)
+        .def("process", [](RubberBand::RubberBandStretcher &self, py::array_t<float> input, size_t samples, bool final) {
+            py::buffer_info info = input.request();
+
+            auto data_ptr = static_cast<const float *>(info.ptr);
+            const float *const data_arr[] = { data_ptr };
+
+            self.process(data_arr, samples, final);
+        })
         .def("available", &RubberBandStretcher::available)
-        .def("retrieve", &RubberBandStretcher::retrieve)
+        // TODO: note the given numpy 2d array format, to output buffer from stretcher to caller
+        //       it may needs reserved 2d buffer with predefined channels and samples to stretcher function filled in
+        //.def("retrieve", &RubberBandStretcher::retrieve)
+        .def("retrieve", [](RubberBand::RubberBandStretcher &self, py::array_t<float> output, size_t samples) {
+            py::buffer_info info = output.request();
+
+            if (info.ndim != 2) {
+                throw std::runtime_error("Output array must be 2D");
+            }
+
+            // Cast the NumPy array to a 2D array of float pointers
+            auto data = static_cast<float *>(info.ptr);
+            size_t num_channels = info.shape[0];
+            size_t num_samples = info.shape[1];
+
+            // Prepare an array of pointers, one per channel
+            std::vector<float *> output_ptrs(num_channels);
+            for (size_t i = 0; i < num_channels; ++i) {
+                output_ptrs[i] = &data[i * num_samples];
+            }
+
+            // Call the C++ retrieve method with the array of pointers
+            size_t result = self.retrieve(output_ptrs.data(), samples);
+            return result;
+        })
         .def("get_frequency_cutoff", &RubberBandStretcher::getFrequencyCutoff)
         .def("set_frequency_cutoff", &RubberBandStretcher::setFrequencyCutoff)
         .def("get_input_increment", &RubberBandStretcher::getInputIncrement)

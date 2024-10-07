@@ -62,6 +62,10 @@ java_sources = [
   'com/breakfastquay/rubberband/RubberBandStretcher.java',
 ]
 
+pybind_sources = [
+  'src/rubberband-py.cpp',
+]
+
 program_sources = [
   'main/main.cpp',
 ]
@@ -190,29 +194,26 @@ config_summary = {}
 target_summary = {}
 
 
-# NOTE: based on pybind is light-weight headers-only pacakge from vcpkg, we may only can check the includes and python dep
-have_pybind = cpp.has_header('pybind11/pybind11.h', args: extra_include_args, required: false)
-# NOTE: in my windows env, pkgconf is installed in cygwin, 
-#       checkout the /c/cygwin64/bin/pkgconf --list-all to include via dependency()
-# TODO: dep can not found in vs2022 command prompt
-python3_dep = dependency('python3', version: '>= 3.10.0', required: false)
+have_pybind = false
 
-if have_pybind
-  message('pybind11 found, we can compile python wrapper for rubberband APIs')
-  if python3_dep.found()
-    # can add to dependencies and requirements for pkg generate
-    feature_dependencies += python3_dep
-    pkgconfig_requirements += python3_dep
-
-    feature_sources += ['src/rubberband-py.cpp']
-    #feature_defines += ['',]
-    # TODO: following the other libraries to see what to do
-    #
-  else
-    message('python3 library not found, >= 3.10 is required for pybind11')
-  endif
-else
-  message('pybind11 not found, considering get it via vcpkg or remove python wrapper source code')
+# NOTE: due to my win env force assigned alternative standalone python 3.6 in env path
+#       can not used for meson including python3 dependencies for pybind,
+#       so far the workaround is use conda to a specific python environment likes 3.10
+#       and install own meson via pip install instead of host installation
+# NOTE: meson v1.2.1 uses built-in python module instead of external dependency, eg.
+#       use `import('python')` instead of `dependency('python3')`
+python3_module = import('python')
+python3_inst = python3_module.find_installation()
+#message(python3_inst.language_version())
+have_python3 = python3_inst.language_version().version_compare('>=3.10')
+python3_dep = python3_inst.dependency(required: true)
+#python3_dep = dependency('python3', version: '>= 3.10', required: false)
+#have_python3 = python3_dep.found()
+if have_python3
+  # NOTE: based on pybind is light-weight headers-only pacakge from vcpkg, we may only can check the includes and python dep
+  have_pybind = cpp.has_header('pybind11/pybind11.h', dependencies: python3_dep,args: extra_include_args, required: false)
+elif python3_dep.found()
+  message('python found but version not match: ' + python3_dep.language_version())
 endif
 
 
@@ -571,6 +572,7 @@ if cpp.get_id() == 'msvc'
   rubberband_lv2_name = 'lv2-rubberband'
   rubberband_vamp_name = 'vamp-rubberband'
   rubberband_jni_name = 'rubberband-jni'
+  rubberband_python_name = 'rubberband-py'
   unit_tests_name = 'tests'
 else
   rubberband_library_name = 'rubberband'
@@ -581,6 +583,7 @@ else
   rubberband_lv2_name = 'lv2-rubberband'
   rubberband_vamp_name = 'vamp-rubberband'
   rubberband_jni_name = 'rubberband-jni'
+  rubberband_python_name = 'rubberband-py'
   unit_tests_name = 'tests'
 endif  
 
@@ -685,6 +688,38 @@ else
     message('Not building Java Native Interface: Java compiler or archiver missing')
   else
     message('Not building Java Native Interface: JNI header not found')
+  endif
+endif
+
+if have_pybind
+  target_summary += { 'Python library': [ true, 'Name: ' + rubberband_python_name ] }
+  message('Will build Python pybind wrapper')
+  # NOTE: python module can not get header files
+  #       refer to https://github.com/mesonbuild/meson/issues/12862
+  py3_dep_has_header = meson.get_compiler('c').has_header('Python.h', dependencies: python3_dep)
+  message('Complier has py3 header: ' + py3_dep_has_header.to_string()) # assert str
+  # NOTE: for python module, use install object instead of dependency object
+  #       refer to https://mesonbuild.com/Python-module.html#python_installation-object
+  rubberband_py = python3_inst.extension_module(
+    'rubberband_py_wrapper', # module name
+    sources: pybind_sources,
+    include_directories: [
+      general_include_dirs, # Existing general include directories
+      #python3_dep.include_directories() # Include pybind11 headers
+    ],
+    dependencies: [
+      rubberband_objlib_dep, # Reuse existing rubberband object library
+      general_dependencies,  # Reuse existing dependencies
+    ],
+    cpp_args: general_compile_args, # Reuse general compile arguments
+    install: true
+  )
+else
+  target_summary += { 'Python library': false }
+  if not have_python3
+    message('Not building Python pybind wrapper: Python3 not found')
+  else
+    message('Not building Python pybind wrapper: pybind header not found')
   endif
 endif
 

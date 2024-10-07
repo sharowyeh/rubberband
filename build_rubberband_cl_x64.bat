@@ -23,5 +23,5 @@ mkdir build-x64-dbg
 meson setup build-x64-dbg --wipe -Dprefix=%~dp0 -Dpkg_config_path=%VCPKG_ROOT%\installed\x64-windows\lib\pkgconfig -Dextra_include_dirs=%VCPKG_ROOT%\installed\x64-windows\include -Dextra_lib_dirs=%VCPKG_ROOT%\installed\x64-windows\debug\lib -Dfft=fftw -Dresampler=libsamplerate -Dbuildtype=debug 
 
 
-::: ninja -C build-x64-rel
-ninja -C build-x64-dbg
+ninja -C build-x64-rel
+::: ninja -C build-x64-dbg

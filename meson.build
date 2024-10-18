@@ -572,7 +572,7 @@ if cpp.get_id() == 'msvc'
   rubberband_lv2_name = 'lv2-rubberband'
   rubberband_vamp_name = 'vamp-rubberband'
   rubberband_jni_name = 'rubberband-jni'
-  rubberband_python_name = 'rubberband-py'
+  rubberband_python_name = 'rubberband_wrapper'
   unit_tests_name = 'tests'
 else
   rubberband_library_name = 'rubberband'
@@ -583,7 +583,7 @@ else
   rubberband_lv2_name = 'lv2-rubberband'
   rubberband_vamp_name = 'vamp-rubberband'
   rubberband_jni_name = 'rubberband-jni'
-  rubberband_python_name = 'rubberband-py'
+  rubberband_python_name = 'rubberband_wrapper'
   unit_tests_name = 'tests'
 endif  
 
@@ -701,7 +701,7 @@ if have_pybind
   # NOTE: for python module, use install object instead of dependency object
   #       refer to https://mesonbuild.com/Python-module.html#python_installation-object
   rubberband_py = python3_inst.extension_module(
-    'rubberband_py_wrapper', # module name
+    'rubberband_wrapper', # module name
     sources: pybind_sources,
     include_directories: [
       general_include_dirs, # Existing general include directories

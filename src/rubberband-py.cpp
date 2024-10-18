@@ -11,12 +11,25 @@ namespace py = pybind11;
 using namespace RubberBand;
 
 PYBIND11_MODULE(rubberband_wrapper, m) {
+    // Bind the enum Option(from gpt, still fail for def py::init py::arg("options")
+    py::enum_<RubberBandStretcher::Option>(m, "Option")
+        .value("OptionProcessOffline", RubberBandStretcher::OptionProcessOffline)
+        .value("OptionProcessRealTime", RubberBandStretcher::OptionProcessRealTime)
+        .value("OptionStretchElastic", RubberBandStretcher::OptionStretchElastic) // obsolete
+        .value("OptionStretchPrecise", RubberBandStretcher::OptionStretchPrecise) // obsolete
+        .value("OptionTransientsCrisp", RubberBandStretcher::OptionTransientsCrisp)
+        .value("OptionTransientsMixed", RubberBandStretcher::OptionTransientsMixed)
+        // Add other enum values as needed
+        .export_values();
+
     py::class_<RubberBandStretcher>(m, "RubberBandStretcher")
-        .def(py::init<size_t, size_t, RubberBandStretcher::Options, double, double>(),
-             py::arg("sample_rate"), py::arg("channels"),
-             py::arg("options") = RubberBandStretcher::DefaultOptions,
-             py::arg("initial_time_ratio") = 1.0,
-             py::arg("initial_pitch_scale") = 1.0)
+        //TODO: failed to arg() convert default argument
+        .def(py::init<size_t, size_t>(), py::arg("sample_rate"), py::arg("channels"))
+        // .def(py::init<size_t, size_t, RubberBandStretcher::Options, double, double>(),
+        //      py::arg("sample_rate"), py::arg("channels"),
+        //      py::arg("options") = RubberBandStretcher::DefaultOptions,
+        //      py::arg("initial_time_ratio") = 1.0,
+        //      py::arg("initial_pitch_scale") = 1.0)
         .def("reset", &RubberBandStretcher::reset)
         .def("get_engine_version", &RubberBandStretcher::getEngineVersion)
         .def("set_time_ratio", &RubberBandStretcher::setTimeRatio)
